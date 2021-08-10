@@ -1,32 +1,37 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: bb-demo
-  namespace: default
+  name: nodeapp
 spec:
   replicas: 1
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
   selector:
     matchLabels:
-      bb: web
+      app: nodeapp
   template:
     metadata:
       labels:
-        bb: web
+        app: nodeapp
     spec:
       containers:
-      - name: bb-site
-        image: bulletinboard:1.0
+      - image: jenkins:2.60.3
+        name: nodeapp
+        ports:
+        - containerPort: 8080
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: bb-entrypoint
-  namespace: default
+  name: nodeapp
 spec:
-  type: NodePort
+  type: NodePort 
   selector:
-    bb: web
+    app: nodeapp
   ports:
-  - port: 8080
-    targetPort: 8080
-    nodePort: 30001
+    - targetPort: 8080
+      port: 80
+      nodePort: 32764
